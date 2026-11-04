@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trial and recurring billing · skail demo</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Trial and recurring billing</h1>
+      <p class="subtitle">One skail function runs the whole life of a subscription: a trial that ends at the deadline or when the
+        customer subscribes, then one charge per month, with one retry before suspending, until the customer cancels.</p>
+    </header>
+
+    <section class="form">
+      <label>Customer <input id="name" type="text" maxlength="80" placeholder="Demo Customer"></label>
+      <label>Plan
+        <select id="plan"><option value="basic">basic · R$ 29.90</option><option value="pro">pro · R$ 79.90</option></select>
+      </label>
+      <label>Trial (seconds) <input id="trial" type="number" min="1" value="20"></label>
+      <label>Month (seconds) <input id="month" type="number" min="1" value="10"></label>
+      <label>Card
+        <select id="card">
+          <option value="approved">approved</option>
+          <option value="declined-once">declined once</option>
+          <option value="always-declined">always declined</option>
+        </select>
+      </label>
+      <button id="start" type="button">Start trial</button>
+    </section>
+
+    <section class="status">
+      <span id="state" class="badge idle">Idle</span>
+      <span id="countdown" class="countdown" hidden></span>
+      <a id="monitor" href="#" target="_blank" rel="noopener" hidden>Open the skail Monitor</a>
+    </section>
+
+    <p id="error" class="error" hidden></p>
+
+    <section id="result" class="result" hidden></section>
+
+    <section class="summary">
+      <div>Plan <strong id="planView">-</strong></div>
+      <div>Month <strong id="monthView">-</strong></div>
+      <div>Total charged <strong id="totalView">-</strong></div>
+    </section>
+
+    <section class="buttons">
+      <button id="subscribe" type="button">Subscribe</button>
+      <button id="cancel" type="button" class="danger">Cancel subscription</button>
+    </section>
+
+    <section>
+      <h2>Timeline</h2>
+      <ol id="timeline" class="timeline"></ol>
+    </section>
+
+    <footer>Customer <code id="customerId">-</code></footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

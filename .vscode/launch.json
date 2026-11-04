@@ -1,0 +1,45 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Worker",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/SkailSubscriptionCycle.Worker/bin/Debug/net8.0/SkailSubscriptionCycle.Worker.dll",
+      "cwd": "${workspaceFolder}/src/SkailSubscriptionCycle.Worker",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        // outside a container the web app is on localhost
+        "WEB_BASE_URL": "http://localhost:8080"
+      },
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Web",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/SkailSubscriptionCycle.Web/bin/Debug/net8.0/SkailSubscriptionCycle.Web.dll",
+      "cwd": "${workspaceFolder}/src/SkailSubscriptionCycle.Web",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "ASPNETCORE_URLS": "http://localhost:8080"
+      },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "console": "internalConsole",
+      "stopAtEntry": false
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Worker + Web",
+      "configurations": ["Web", "Worker"],
+      "stopAll": true
+    }
+  ]
+}

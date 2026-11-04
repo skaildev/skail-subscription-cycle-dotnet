@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "process",
+      "command": "dotnet",
+      "args": ["build", "${workspaceFolder}/SkailSubscriptionCycle.sln", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "test",
+      "type": "process",
+      "command": "dotnet",
+      "args": ["test", "${workspaceFolder}/tests/SkailSubscriptionCycle.Tests"],
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "containers: up",
+      "type": "shell",
+      "command": "scripts/run.sh up",
+      "problemMatcher": []
+    },
+    {
+      "label": "containers: down",
+      "type": "shell",
+      "command": "scripts/run.sh down",
+      "problemMatcher": []
+    },
+    {
+      "label": "containers: kill-worker",
+      "type": "shell",
+      "command": "scripts/run.sh kill-worker",
+      "problemMatcher": []
+    },
+    {
+      "label": "containers: start-worker",
+      "type": "shell",
+      "command": "scripts/run.sh start-worker",
+      "problemMatcher": []
+    },
+    {
+      "label": "containers: logs",
+      "type": "shell",
+      "command": "scripts/run.sh logs",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

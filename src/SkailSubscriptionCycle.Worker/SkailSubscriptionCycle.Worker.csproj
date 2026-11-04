@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- build assets stay private: projects referencing the worker (tests) must not run the IL weaver -->
+    <PackageReference Include="Skail.Platform.Runtime" Version="2.2.2" PrivateAssets="build;buildtransitive;analyzers" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+    <PackageReference Include="Skail.Platform.Analyzer" Version="2.2.2" PrivateAssets="all" />
+    <ProjectReference Include="..\SkailSubscriptionCycle.Contracts\SkailSubscriptionCycle.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

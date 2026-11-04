@@ -1,0 +1,9 @@
+# never send secrets or build output to the image build context
+.env
+.env.*
+!.env.example
+**/bin/
+**/obj/
+.git/
+.vscode/
+tests/

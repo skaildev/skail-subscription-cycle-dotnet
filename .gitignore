@@ -1,0 +1,21 @@
+# Environment variables with secrets (SKAIL_KEY, SKAIL_NAMESPACE, ...)
+.env
+.env.*
+!.env.example
+
+# .NET
+bin/
+obj/
+*.user
+TestResults/
+
+# VS Code (version only the shared configuration)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+
+# Other
+.DS_Store
+.vs/

@@ -1,0 +1,52 @@
+:root { color-scheme: light dark; --accent: #2563eb; --muted: #6b7280; --ok: #16a34a; --bad: #dc2626; --warn: #d97706; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.5 system-ui, sans-serif; background: Canvas; color: CanvasText; }
+main { max-width: 980px; margin: 0 auto; padding: 2rem 1rem; }
+h1 { margin: 0; }
+h2 { font-size: 1rem; margin: 2rem 0 .5rem; }
+.subtitle { color: var(--muted); margin-top: .25rem; }
+.controls { display: flex; gap: .75rem; align-items: center; margin: 1.5rem 0 1rem; }
+button { background: var(--accent); border-color: var(--accent); color: #fff; cursor: pointer; min-width: 7rem; }
+.status { display: flex; gap: 1rem; align-items: center; color: var(--muted); }
+.badge { padding: .15rem .6rem; border-radius: 999px; background: var(--muted); color: #fff; font-size: .85rem; }
+.badge.active { background: var(--accent); }
+.badge.done { background: var(--ok); }
+.badge.failed { background: var(--bad); }
+.error { color: var(--bad); }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: .3rem .5rem; border-bottom: 1px solid color-mix(in srgb, CanvasText 15%, transparent); }
+.pill { padding: .05rem .5rem; border-radius: 999px; font-size: .8rem; color: #fff; background: var(--muted); }
+footer { margin-top: 2rem; color: var(--muted); font-size: .85rem; }
+.controls input { flex: 1; font: inherit; padding: .5rem .75rem; border-radius: .5rem; border: 1px solid var(--muted); background: Canvas; color: CanvasText; }
+.controls input:disabled, .area input:disabled { opacity: .55; cursor: not-allowed; }
+button.danger { background: var(--bad); border-color: var(--bad); }
+.areas { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+.area { padding: 1rem; border: 1px solid color-mix(in srgb, CanvasText 20%, transparent); border-radius: .75rem; display: flex; flex-direction: column; gap: .5rem; }
+.area h2 { margin: 0; display: flex; justify-content: space-between; align-items: center; }
+.area input { font: inherit; padding: .4rem .6rem; border-radius: .5rem; border: 1px solid var(--muted); background: Canvas; color: CanvasText; }
+.detail { color: var(--muted); margin: 0; min-height: 1.5rem; }
+.buttons { display: flex; gap: .5rem; }
+.pill.Pending { background: var(--warn); } .pill.Signed { background: var(--ok); }
+.pill.Refused, .pill.Revoked { background: var(--bad); } .pill.Withdrawn { background: var(--muted); }
+.result { padding: .75rem 1rem; border-radius: .75rem; font-weight: 600; margin: 1rem 0; }
+.result.ok { background: color-mix(in srgb, var(--ok) 18%, transparent); }
+.result.bad { background: color-mix(in srgb, var(--bad) 18%, transparent); }
+.timeline { padding-left: 1.25rem; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) { .areas { grid-template-columns: 1fr; } }
+.form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; align-items: end; margin: 1.5rem 0 1rem; }
+.form label { display: flex; flex-direction: column; gap: .25rem; font-size: .85rem; color: var(--muted); }
+.form input, .form select { font: inherit; padding: .5rem .75rem; border-radius: .5rem; border: 1px solid var(--muted); background: Canvas; color: CanvasText; }
+.form :disabled, button:disabled { opacity: .55; cursor: not-allowed; }
+.badge.warn { background: var(--warn); }
+.countdown { font-variant-numeric: tabular-nums; }
+.summary { display: flex; gap: 2rem; margin: 1rem 0; color: var(--muted); }
+.summary strong { color: CanvasText; }
+.buttons { display: flex; gap: .75rem; margin: 1rem 0; }
+button.danger { background: var(--bad); border-color: var(--bad); }
+.result { padding: .75rem 1rem; border-radius: .75rem; font-weight: 600; margin: 1rem 0; }
+.result.ok { background: color-mix(in srgb, var(--ok) 18%, transparent); }
+.result.bad { background: color-mix(in srgb, var(--bad) 18%, transparent); }
+.timeline { padding-left: 1.25rem; font-variant-numeric: tabular-nums; }
+.timeline li.ChargeDeclined, .timeline li.Retrying { color: var(--warn); }
+.timeline li.Suspended, .timeline li.Failed { color: var(--bad); }
+.timeline li.Charged { color: var(--ok); }
