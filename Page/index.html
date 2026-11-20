@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subscription cycle · skail demo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Cpath d='M25.4385 18.2557L7.28223 18.2538L7.28125 4.53796C7.28123 3.98936 7.21634 0.353387 7.32422 0.00280762C13.2929 0.0779445 19.4626 0.0104719 25.4414 0.00280762L25.4385 18.2557ZM10.917 7.30261L18.1797 7.30164L18.1777 14.6083L21.8213 14.6102V3.6532C18.2322 3.65317 14.494 3.70895 10.918 3.64734L10.917 7.30261Z' fill='%2368057F'/%3E%3Cpath d='M0 14.609L3.6314 14.6068L3.6293 21.8979L10.9159 21.8957L10.9154 25.5448L2.61941e-05 25.5414L0 14.609Z' fill='%23E8611C'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* skail brand tokens, from skail.dev */
+    :root {
+      --bg: #ffffff; --bg2: #f7f7f8; --bg3: #f0f0f2; --card: #fafafb;
+      --ink: #111114; --ink2: #4b4c54; --ink3: #8a8b94;
+      --line: #ebebee; --line2: #dfdfe4;
+      --brand: #68057F; --brand2: #8b2fa8; --brand-soft: #f5edf8; --orange: #E8611C;
+      --ok: #17914f; --ok-soft: #e8f6ee; --run: #2d6be4; --run-soft: #e9f0fd;
+      --err: #d6363b; --err-soft: #fcebec; --warn: #b7791f; --warn-soft: #fdf4e3;
+      --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      --r: 14px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg2); color: var(--ink); font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+    a { color: var(--brand); }
+    .nav { background: var(--bg); border-bottom: 1px solid var(--line); }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+    .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 19px; letter-spacing: -.03em; color: var(--ink); text-decoration: none; }
+    .chip { font-size: 12px; padding: 2px 9px; border-radius: 7px; border: 1px solid var(--line2); background: var(--bg); color: var(--ink2); font-weight: 500; }
+    main.wrap { padding-top: 44px; padding-bottom: 60px; }
+    h1 { font-size: clamp(30px, 4.5vw, 44px); line-height: 1.05; letter-spacing: -.04em; font-weight: 500; margin: 0 0 12px; }
+    .lead { color: var(--ink2); max-width: 720px; margin: 0 0 28px; }
+    .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .btn { display: inline-flex; align-items: center; height: 40px; padding: 0 18px; border-radius: 999px; border: 0; font: 500 14px var(--sans); cursor: pointer; }
+    .btn-dark { background: var(--ink); color: #fff; }
+    .btn-brand { background: var(--brand); color: #fff; }
+    .btn-line { background: var(--bg); color: var(--err); border: 1px solid var(--line2); }
+    .btn:disabled { opacity: .35; cursor: not-allowed; }
+    .muted { color: var(--ink3); font-size: 14px; }
+    .mono { font-family: var(--mono); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .card { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; }
+    .card h2 { display: flex; justify-content: space-between; align-items: center; font-size: 17px; font-weight: 600; margin: 0 0 14px; letter-spacing: -.01em; }
+    .actions { display: flex; align-items: center; gap: 8px; }
+    .pill { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 999px; }
+    select { height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line2); background: var(--bg); font: 500 14px var(--sans); color: var(--ink); }
+    .facts { display: flex; gap: 28px; flex-wrap: wrap; margin: 0; }
+    .facts dt { color: var(--ink3); font-size: 13px; }
+    .facts dd { margin: 0; font-weight: 500; }
+    .result { border-radius: var(--r); padding: 14px 18px; font-weight: 500; margin-bottom: 16px; }
+    .result.cycle-ended, .result.cancelled { background: var(--ok-soft); color: var(--ok); }
+    .result.suspended { background: var(--err-soft); color: var(--err); }
+    .result.trial-ended { background: var(--warn-soft); color: var(--warn); }
+    .timeline { list-style: none; margin: 0; padding: 0; font: 13px/1.7 var(--mono); color: var(--ink2); }
+    .timeline time { color: var(--ink3); margin-right: 10px; }
+    .empty { color: var(--ink3); font-size: 14px; }
+    footer { color: var(--ink3); font-size: 13px; margin-top: 28px; }
+    .steps { margin: 0 0 16px; padding-left: 20px; color: var(--ink2); }
+    .steps li { margin: 2px 0; }
+    .paths { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 0 0 24px; }
+    .path { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--ink2); }
+    .path b { display: block; color: var(--ink); font-weight: 500; margin-bottom: 2px; }
+    .order { display: flex; flex-wrap: wrap; gap: 24px; font-size: 14px; }
+    .order span { color: var(--ink3); display: block; font-size: 12px; }
+    .order b { font-weight: 500; font-size: 16px; }
+    .card .role { color: var(--ink2); font-size: 14px; margin: -6px 0 12px; }
+    .clock { height: 6px; border-radius: 999px; background: var(--bg3); overflow: hidden; margin-bottom: 6px; }
+    .clock div { height: 100%; background: var(--warn); transition: width 1s linear; }
+    .hint { font-size: 13px; color: var(--ink2); margin: 0 0 12px; min-height: 20px; }
+    .hint b { color: var(--warn); font-weight: 600; }
+    .section { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 16px; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 12px; }
+    .cards label { display: block; background: var(--bg); border: 1px solid var(--line2); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--ink2); cursor: pointer; }
+    .cards label b { display: block; color: var(--ink); font-weight: 500; }
+    .cards input { accent-color: var(--brand); margin: 0 6px 0 0; }
+    .cards label:has(input:checked) { border-color: var(--brand); background: var(--brand-soft); }
+    .months { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; }
+    .month { border-radius: 8px; padding: 8px 4px; text-align: center; font-size: 12px; background: var(--bg3); color: var(--ink3); }
+    .month b { display: block; font: 500 13px var(--mono); }
+    .month.paid { background: var(--ok-soft); color: var(--ok); }
+    .month.retried { background: var(--ok-soft); color: var(--ok); box-shadow: inset 0 0 0 1px var(--warn); }
+    .month.retrying { background: var(--warn-soft); color: var(--warn); }
+    .month.declined { background: var(--err-soft); color: var(--err); }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; font-size: 12px; color: var(--ink3); }
+    .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--bg3); }
+    .legend .paid::before { background: var(--ok-soft); border: 1px solid var(--ok); }
+    .legend .retried::before { background: var(--ok-soft); border: 1px solid var(--warn); }
+    .legend .retrying::before { background: var(--warn-soft); border: 1px solid var(--warn); }
+    .legend .declined::before { background: var(--err-soft); border: 1px solid var(--err); }
+    .pill.trial, .pill.active { background: var(--run-soft); color: var(--run); }
+    .pill.cycle-ended, .pill.cancelled { background: var(--ok-soft); color: var(--ok); }
+    .pill.suspended { background: var(--err-soft); color: var(--err); }
+    .pill.trial-ended { background: var(--warn-soft); color: var(--warn); }
+    @media (max-width: 720px) { .paths, .cards { grid-template-columns: 1fr; } .months { grid-template-columns: repeat(6, 1fr); } }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap">
+      <a class="logo" href="https://skail.dev" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M25.4385 18.2557L7.28223 18.2538L7.28125 4.53796C7.28123 3.98936 7.21634 0.353387 7.32422 0.00280762C13.2929 0.0779445 19.4626 0.0104719 25.4414 0.00280762L25.4385 18.2557ZM10.917 7.30261L18.1797 7.30164L18.1777 14.6083L21.8213 14.6102V3.6532C18.2322 3.65317 14.494 3.70895 10.918 3.64734L10.917 7.30261Z" fill="#68057F"/><path d="M0 14.609L3.6314 14.6068L3.6293 21.8979L10.9159 21.8957L10.9154 25.5448L2.61941e-05 25.5414L0 14.609Z" fill="#E8611C"/></svg>
+        skail <span class="chip">demo</span>
+      </a>
+      <a class="muted" href="https://docs.skail.dev" target="_blank" rel="noopener">Docs</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h1>Subscription cycle</h1>
+    <p class="lead">One skail function runs the whole life of a subscription: a free trial, then one charge a month, a
+      retry when the card is declined, and the end when the customer cancels, the card fails twice or the 12 months are
+      over. Between the charges it waits with durable delays, which hold no thread or process. In the demo the trial
+      lasts 20 seconds and a month lasts 10.</p>
+
+    <p class="muted" style="margin: 0 0 6px">You play the customer:</p>
+    <ol class="steps">
+      <li>Pick the card the customer has, and click <b>Start trial</b>.</li>
+      <li>Subscribe to a plan during the 20-second trial, or do nothing and let the trial end.</li>
+      <li>Watch a charge a month; cancel whenever you like.</li>
+    </ol>
+
+    <div class="paths">
+      <div class="path"><b>Subscribe</b>a charge a month; ends after 12</div>
+      <div class="path"><b>Do nothing in the trial</b>trial ends, nothing charged</div>
+      <div class="path"><b>Card declined once</b>retried 5 s later, and paid</div>
+      <div class="path"><b>Card always declined</b>suspended</div>
+      <div class="path"><b>Cancel</b>no more charges</div>
+    </div>
+
+    <div class="cards">
+      <label><input type="radio" name="card" value="approved" checked><b>Card approved</b>every charge goes through</label>
+      <label><input type="radio" name="card" value="declined-once"><b>Card declined once a month</b>the first attempt of each month fails, the retry passes</label>
+      <label><input type="radio" name="card" value="always-declined"><b>Card always declined</b>every attempt fails</label>
+    </div>
+    <div class="section">
+      <button id="start" class="btn btn-brand">Start trial</button>
+    </div>
+
+    <div id="result" class="result" hidden></div>
+
+    <div id="customerArea" class="grid" hidden>
+      <article class="card">
+        <h2><span>Customer <span id="customerId" class="muted mono"></span></span><span id="status" class="pill"></span></h2>
+        <div class="order">
+          <div><span>Plan</span><b id="plan">—</b></div>
+          <div><span>Card</span><b id="cardOnFile">—</b></div>
+          <div><span>Months paid</span><b id="paid">0</b></div>
+        </div>
+        <div id="trial" style="margin-top: 14px"></div>
+      </article>
+      <article class="card">
+        <h2>Your actions</h2>
+        <p class="hint">Subscribe during the trial; cancel at any time after that.</p>
+        <div class="actions" style="margin-bottom: 10px">
+          <button id="basic" class="btn btn-brand" disabled>Subscribe Basic, R$ 29.90</button>
+          <button id="pro" class="btn btn-brand" disabled>Subscribe Pro, R$ 79.90</button>
+        </div>
+        <div class="actions"><button id="cancel" class="btn btn-line" disabled>Cancel subscription</button></div>
+      </article>
+    </div>
+
+    <section id="monthsCard" class="card" style="margin-bottom: 16px" hidden>
+      <h2>The 12 months</h2>
+      <div id="months" class="months"></div>
+      <div class="legend"><span class="paid">paid</span><span class="retried">paid on the retry (↻)</span>
+        <span class="retrying">declined, retrying</span><span class="declined">declined twice</span><span>not yet</span></div>
+    </section>
+
+    <section class="card">
+      <h2>What happened</h2>
+      <ol id="timeline" class="timeline"></ol>
+      <p id="empty" class="empty">Start a trial to begin.</p>
+    </section>
+
+    <footer>This is a demo, not production code: the cards and the charges are simulated, and no real payment is made.
+      Each step is also in the <a href="https://docs.skail.dev/referencia/portal/monitor" target="_blank" rel="noopener">skail Monitor</a>.</footer>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const TRIAL = 20;
+    const endText = {
+      "trial-ended": "The trial ended without a subscription: nothing was charged.",
+      cancelled: "Cancelled: no more charges, and the months already paid stay paid.",
+      suspended: "Suspended: a month was declined twice.",
+      "cycle-ended": "The cycle ended after 12 months.",
+    };
+    const cardText = { approved: "approved", "declined-once": "declined once a month", "always-declined": "always declined" };
+    let state = { customer: null };
+
+    async function post(url) {
+      const response = await fetch(url, { method: "POST" });
+      if (!response.ok && response.status !== 409) alert(`The app answered ${response.status}.`);
+      await refresh();
+    }
+
+    $("start").onclick = () => post(`/api/customers/${document.querySelector("input[name=card]:checked").value}`);
+    $("basic").onclick = () => post("/api/subscribe/basic");
+    $("pro").onclick = () => post("/api/subscribe/pro");
+    $("cancel").onclick = () => post("/api/cancel");
+
+    function render() {
+      const c = state.customer;
+      $("start").textContent = c ? "Start another trial" : "Start trial";
+      $("start").disabled = !!c && !c.end; // one customer at a time
+      $("customerArea").hidden = $("monthsCard").hidden = !c;
+      $("result").hidden = !c?.end;
+      if (c?.end) { $("result").className = `result ${c.end}`; $("result").textContent = endText[c.end]; }
+      if (!c) return renderTimeline();
+
+      $("customerId").textContent = c.id.slice(0, 8);
+      const status = c.end ?? (c.trialEnds ? "trial" : c.plan ? "active" : "subscribing");
+      $("status").textContent = status.replace("-", " ");
+      $("status").className = `pill ${status}`;
+      $("plan").textContent = c.plan ?? "—";
+      $("cardOnFile").textContent = cardText[c.card] ?? c.card ?? "—";
+      $("paid").textContent = c.monthsPaid;
+
+      const left = c.trialEnds ? Math.max(0, Math.round((new Date(c.trialEnds) - Date.now()) / 1000)) : null;
+      $("trial").innerHTML = left === null ? "" : `<div class="clock"><div style="width: ${(100 * left) / TRIAL}%"></div></div>
+        <p class="hint">Free trial. In <b>${left} s</b> it ends, unless the customer subscribes.</p>`;
+
+      $("basic").disabled = $("pro").disabled = !state.canSubscribe;
+      $("cancel").disabled = !state.canCancel;
+      $("months").innerHTML = (state.months ?? []).map((m, i) => `<div class="month ${m}"><b>${i + 1}</b>${{ paid: "paid", retried: "paid ↻", retrying: "retrying", declined: "declined" }[m] ?? ""}</div>`).join("");
+      renderTimeline();
+    }
+
+    function renderTimeline() {
+      const items = state.timeline ?? [];
+      $("empty").hidden = items.length > 0;
+      $("timeline").innerHTML = items.map((t) =>
+        `<li><time>${new Date(t.at).toLocaleTimeString()}</time>${t.text.replace(/</g, "&lt;")}</li>`).join("");
+    }
+
+    async function refresh() {
+      try { state = await (await fetch("/api/state")).json(); } catch { /* the app is restarting */ }
+      render();
+    }
+
+    refresh();
+    setInterval(refresh, 1000);
+  </script>
+</body>
+</html>
