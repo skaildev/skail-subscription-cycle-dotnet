@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+.git
+bin/
+obj/
+*.json.lock
+.saga-demo.json

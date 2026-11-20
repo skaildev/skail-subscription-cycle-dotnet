@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subscription cycle · skail demo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Cpath d='M25.4385 18.2557L7.28223 18.2538L7.28125 4.53796C7.28123 3.98936 7.21634 0.353387 7.32422 0.00280762C13.2929 0.0779445 19.4626 0.0104719 25.4414 0.00280762L25.4385 18.2557ZM10.917 7.30261L18.1797 7.30164L18.1777 14.6083L21.8213 14.6102V3.6532C18.2322 3.65317 14.494 3.70895 10.918 3.64734L10.917 7.30261Z' fill='%2368057F'/%3E%3Cpath d='M0 14.609L3.6314 14.6068L3.6293 21.8979L10.9159 21.8957L10.9154 25.5448L2.61941e-05 25.5414L0 14.609Z' fill='%23E8611C'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* skail brand tokens, from skail.dev */
+    :root {
+      --bg: #ffffff; --bg2: #f7f7f8; --bg3: #f0f0f2; --card: #fafafb;
+      --ink: #111114; --ink2: #4b4c54; --ink3: #8a8b94;
+      --line: #ebebee; --line2: #dfdfe4;
+      --brand: #68057F; --brand2: #8b2fa8; --brand-soft: #f5edf8; --orange: #E8611C;
+      --ok: #17914f; --ok-soft: #e8f6ee; --run: #2d6be4; --run-soft: #e9f0fd;
+      --err: #d6363b; --err-soft: #fcebec; --warn: #b7791f; --warn-soft: #fdf4e3;
+      --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      --r: 14px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg2); color: var(--ink); font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+    a { color: var(--brand); }
+    .nav { background: var(--bg); border-bottom: 1px solid var(--line); }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+    .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 19px; letter-spacing: -.03em; color: var(--ink); text-decoration: none; }
+    .chip { font-size: 12px; padding: 2px 9px; border-radius: 7px; border: 1px solid var(--line2); background: var(--bg); color: var(--ink2); font-weight: 500; }
+    main.wrap { padding-top: 44px; padding-bottom: 60px; }
+    h1 { font-size: clamp(30px, 4.5vw, 44px); line-height: 1.05; letter-spacing: -.04em; font-weight: 500; margin: 0 0 12px; }
+    .lead { color: var(--ink2); max-width: 720px; margin: 0 0 28px; }
+    .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .btn { display: inline-flex; align-items: center; height: 40px; padding: 0 18px; border-radius: 999px; border: 0; font: 500 14px var(--sans); cursor: pointer; }
+    .btn-dark { background: var(--ink); color: #fff; }
+    .btn-brand { background: var(--brand); color: #fff; }
+    .btn-line { background: var(--bg); color: var(--err); border: 1px solid var(--line2); }
+    .btn:disabled { opacity: .35; cursor: not-allowed; }
+    .muted { color: var(--ink3); font-size: 14px; }
+    .mono { font-family: var(--mono); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .card { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; }
+    .card h2 { display: flex; justify-content: space-between; align-items: center; font-size: 17px; font-weight: 600; margin: 0 0 14px; letter-spacing: -.01em; }
+    .actions { display: flex; gap: 8px; }
+    .pill { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 999px; }
+    select { height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line2); background: var(--bg); font: 500 14px var(--sans); color: var(--ink); }
+    .facts { display: flex; gap: 28px; flex-wrap: wrap; margin: 0; }
+    .facts dt { color: var(--ink3); font-size: 13px; }
+    .facts dd { margin: 0; font-weight: 500; }
+    .result { border-radius: var(--r); padding: 14px 18px; font-weight: 500; margin-bottom: 16px; }
+    .result.cycle-ended, .result.cancelled { background: var(--ok-soft); color: var(--ok); }
+    .result.suspended { background: var(--err-soft); color: var(--err); }
+    .result.trial-ended { background: var(--warn-soft); color: var(--warn); }
+    .timeline { list-style: none; margin: 0; padding: 0; font: 13px/1.7 var(--mono); color: var(--ink2); }
+    .timeline time { color: var(--ink3); margin-right: 10px; }
+    .empty { color: var(--ink3); font-size: 14px; }
+    footer { color: var(--ink3); font-size: 13px; margin-top: 28px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap">
+      <a class="logo" href="https://skail.dev" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M25.4385 18.2557L7.28223 18.2538L7.28125 4.53796C7.28123 3.98936 7.21634 0.353387 7.32422 0.00280762C13.2929 0.0779445 19.4626 0.0104719 25.4414 0.00280762L25.4385 18.2557ZM10.917 7.30261L18.1797 7.30164L18.1777 14.6083L21.8213 14.6102V3.6532C18.2322 3.65317 14.494 3.70895 10.918 3.64734L10.917 7.30261Z" fill="#68057F"/><path d="M0 14.609L3.6314 14.6068L3.6293 21.8979L10.9159 21.8957L10.9154 25.5448L2.61941e-05 25.5414L0 14.609Z" fill="#E8611C"/></svg>
+        skail <span class="chip">demo</span>
+      </a>
+      <a class="muted" href="https://docs.skail.dev" target="_blank" rel="noopener">Docs</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h1>Subscription cycle</h1>
+    <p class="lead">A skail function runs the whole life of a subscription: a 20-second trial, then one charge every
+      10 seconds (a month, in the demo). A declined charge gets one retry 5 seconds later, and a second decline suspends
+      the subscription. A cancellation stops the charges, and after 12 months the cycle ends.</p>
+
+    <div class="bar">
+      <select id="card" aria-label="Simulated card">
+        <option value="approved">Card: approved</option>
+        <option value="declined-once">Card: declined once a month</option>
+        <option value="always-declined">Card: always declined</option>
+      </select>
+      <button id="start" class="btn btn-dark">Start trial</button>
+      <span id="status" class="muted">No customer yet.</span>
+    </div>
+
+    <div id="result" class="result" hidden></div>
+
+    <div class="grid">
+      <article class="card">
+        <h2>Subscription</h2>
+        <div class="actions">
+          <button id="basic" class="btn btn-brand" disabled>Subscribe Basic, R$ 29.90</button>
+          <button id="pro" class="btn btn-brand" disabled>Subscribe Pro, R$ 79.90</button>
+        </div>
+        <p class="muted">During the trial.</p>
+        <div class="actions"><button id="cancel" class="btn btn-line" disabled>Cancel subscription</button></div>
+      </article>
+      <article class="card">
+        <h2>Customer</h2>
+        <dl class="facts">
+          <div><dt>Plan</dt><dd id="plan">—</dd></div>
+          <div><dt>Months paid</dt><dd id="months">0</dd></div>
+          <div><dt>Card</dt><dd id="cardOnFile">—</dd></div>
+        </dl>
+      </article>
+    </div>
+
+    <section class="card">
+      <h2>What happened</h2>
+      <ol id="timeline" class="timeline"></ol>
+      <p id="empty" class="empty">Start a trial to begin.</p>
+    </section>
+
+    <footer>This is a demo, not production code: the cards and the charges are simulated, and no real payment is made.
+      Each step is also in the <a href="https://docs.skail.dev/referencia/portal/monitor" target="_blank" rel="noopener">skail Monitor</a>.</footer>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const endText = {
+      "trial-ended": "The trial ended without a subscription: nothing was charged.",
+      cancelled: "Cancelled: no more charges, and the months already paid stay paid.",
+      suspended: "Suspended: a month was declined twice.",
+      "cycle-ended": "The cycle ended after 12 months.",
+    };
+    let state = { customer: null };
+
+    async function post(url) {
+      const response = await fetch(url, { method: "POST" });
+      if (!response.ok && response.status !== 409) alert(`The app answered ${response.status}.`);
+      await refresh();
+    }
+
+    $("start").onclick = () => post(`/api/customers/${$("card").value}`);
+    $("basic").onclick = () => post("/api/subscribe/basic");
+    $("pro").onclick = () => post("/api/subscribe/pro");
+    $("cancel").onclick = () => post("/api/cancel");
+
+    function render() {
+      const c = state.customer;
+      $("result").hidden = !c?.end;
+      if (c?.end) { $("result").className = `result ${c.end}`; $("result").textContent = endText[c.end]; }
+
+      if (!c) $("status").textContent = "No customer yet.";
+      else if (c.end) $("status").textContent = `Customer ${c.id.slice(0, 8)}: ${c.end.replace("-", " ")}.`;
+      else if (c.trialEnds) {
+        const left = Math.max(0, Math.round((new Date(c.trialEnds) - Date.now()) / 1000));
+        $("status").textContent = `Customer ${c.id.slice(0, 8)}: in the trial, ${left} s left to subscribe.`;
+      } else $("status").textContent = `Customer ${c.id.slice(0, 8)}: ${c.plan ? "subscribed, one charge every 10 s." : "following."}`;
+
+      $("basic").disabled = $("pro").disabled = !state.canSubscribe;
+      $("cancel").disabled = !state.canCancel;
+      $("plan").textContent = c?.plan ?? "—";
+      $("months").textContent = c?.monthsPaid ?? 0;
+      $("cardOnFile").textContent = c?.card ?? "—";
+
+      const items = state.timeline ?? [];
+      $("empty").hidden = items.length > 0;
+      $("timeline").innerHTML = items.map((t) =>
+        `<li><time>${new Date(t.at).toLocaleTimeString()}</time>${t.text.replace(/</g, "&lt;")}</li>`).join("");
+    }
+
+    async function refresh() {
+      try { state = await (await fetch("/api/state")).json(); } catch { /* the app is restarting */ }
+      render();
+    }
+
+    refresh();
+    setInterval(refresh, 1000);
+  </script>
+</body>
+</html>
